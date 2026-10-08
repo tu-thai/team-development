@@ -75,10 +75,12 @@ Three things need checking, not just reproducing:
 - Read the example README, the release note, and the RUHMI repo root README.
 - Read `MainLoop_obj.cc`, `palm_preprocess.c`, `palm_postprocess.c`, `landmark_preprocess.c`, `landmark_postprocess.c`, and `ai_inference_thread_entry.c`. Write up the pipeline in your own words: anchors and decoding (2016 anchors), NMS, rotated crop, landmark output, when the detector is re-run, and how tracking is lost and re-acquired.
 - Note every tunable parameter (score thresholds, NMS, detector interval, 1€ filter `min_cutoff`/`beta`, max hands) and its default.
-- Map the memory placement (`application_config.h`) and the FreeRTOS thread structure.
+- Map the memory placement (`application_config.h`).
+- Map the FreeRTOS task structure: every task, its priority, stack size, and what it does.
+- Study the other RTOS objects in use (semaphores, mutexes, queues, event groups, task notifications, software timers, and any others) and how they're used: which task waits on or signals each one, from task or ISR context, and how camera, AI, and display are synchronized. The `src/` code makes heavy use of event groups (including from ISRs); objects created in FSP's `configuration.xml` count too. Draw the task/object interaction as a diagram.
 
 #### Step 2 — Build and baseline run
-- Install e² studio 2026-07, FSP 6.6.0, and LLVM/ATfE 22.1.0. Keep this separate from the toolchain our demo uses, so you don't break Duy's setup.
+- Install e² studio 2026-07, FSP 6.6.0, and LLVM/ATfE 22.1.0. Make sure this doesn't break the build of our demo; how you do that is up to you.
 - Import the project zip, build, flash, and run. Note any build or import problems (the README already warns about a `Cannot find smart bundle` issue and a reset needed after flashing in Release builds).
 - Reproduce Renesas's 0/1/2-hand timing figures using their own console output.
 - Record flash/OSPI, SRAM, and SDRAM usage from the map file.
@@ -86,7 +88,7 @@ Three things need checking, not just reproducing:
 #### Step 3 — Instrumented benchmark
 - Add timing so each stage is measured separately: palm preprocess, palm inference, palm postprocess, landmark preprocess, landmark inference, landmark postprocess, filtering, and display.
 - Measure **end-to-end latency** too. A simple way: film the board and a moving hand with a phone at high frame rate and count frames. Agree the method with Duy first.
-- Measure how often the detector actually runs in normal use, and CPU load per thread if FreeRTOS run-time stats are available.
+- Measure how often the detector actually runs in normal use, and CPU load per task if FreeRTOS run-time stats are available.
 - List the operators on NPU vs CPU for both models.
 
 **Phase 1 checkpoint with Tu:** code study notes, baseline vs instrumented timings, memory figures. Before the quality test, we'll agree the test scenes.
@@ -99,7 +101,7 @@ Three things need checking, not just reproducing:
 - Try a few parameter changes (detector interval, 1€ filter settings) and show the latency vs robustness trade-off.
 
 #### Step 5 — Comparison with our demo
-- Run the vision pipeline of our demo's FreeRTOS version under the same scenes and lighting. Duy will give you the build and point you to the timing hooks. Both sides run FreeRTOS, so compare thread structure and priorities too.
+- Run the vision pipeline of our demo's FreeRTOS version under the same scenes and lighting. Duy will give you the build and point you to the timing hooks. Both sides run FreeRTOS, so compare task structure, priorities, and RTOS object usage too.
 - Compare: model variants (Full/Lite, Sparse/Full), input sizes, per-stage timing, end-to-end latency, memory, tracking strategy, smoothing, and robustness.
 
 ## 5. Deliverables
@@ -110,7 +112,7 @@ Put all deliverables in the `renesas-hand-landmark-eval` repo:
 
    | After step | Add this section to the report |
    | :--- | :--- |
-   | Step 1 — Study | Pipeline summary in your own words, including tracking and filtering; tunable parameters and defaults; memory placement and thread structure |
+   | Step 1 — Study | Pipeline summary in your own words, including tracking and filtering; tunable parameters and defaults; memory placement; FreeRTOS task structure and RTOS objects, with the interaction diagram |
    | Step 2 — Build and baseline run | Build notes and problems; Renesas's 0/1/2-hand figures vs your baseline run; memory table |
    | Step 3 — Instrumented benchmark | Timing table by stage and end to end, for 0/1/2 hands; detector run rate; NPU vs CPU operators |
    | Step 4 — Quality test | Quality results per scene; parameter trade-off (latency vs robustness) |
