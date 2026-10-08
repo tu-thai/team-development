@@ -40,7 +40,7 @@ This is effectively a public reference for the same pipeline our demo uses. Cust
 
 Three things need checking, not just reproducing:
 
-1. **The timing window is narrow.** `ai_inference_time_ms` covers tensor copy, inference, and pre/post-processing. It leaves out camera capture, camera post-processing, and LCD refresh. The real end-to-end latency (hand moves → overlay moves) is unknown.
+1. **The timing window is narrow.** `ai_inference_time_ms` covers tensor copy, inference, and pre/post-processing. It leaves out camera capture, camera post-processing, and LCD refresh. The real end-to-end latency (frame captured → result on screen) is unknown.
 2. **The speed-up comes mostly from tracking, not the models.** We need to know what tracking-first costs in robustness: fast motion, hands entering/leaving, two hands crossing.
 3. **No accuracy figures are given.** The README says the models "have not been retrained or fine-tuned … provided as-is".
 
@@ -87,7 +87,7 @@ Three things need checking, not just reproducing:
 
 #### Step 3 — Instrumented benchmark
 - Add timing so each stage is measured separately: palm preprocess, palm inference, palm postprocess, landmark preprocess, landmark inference, landmark postprocess, filtering, and display.
-- Measure **end-to-end latency** too. A simple way: film the board and a moving hand with a phone at high frame rate and count frames. Agree the method with Duy first.
+- Measure **end-to-end latency** on the chip too, from camera frame capture to the display showing the result for that frame. Timestamp each frame when capture completes (camera/VIN interrupt) and again when the display buffer showing its result is presented (GLCDC). Use a hardware timer through FSP (for example GPT) or the existing `time_counter` module. Agree the method with Duy first.
 - Measure how often the detector actually runs in normal use, and CPU load per task if FreeRTOS run-time stats are available.
 - List the operators on NPU vs CPU for both models.
 
@@ -126,7 +126,7 @@ Put all deliverables in the `renesas-hand-landmark-eval` repo:
 ## 6. Questions the report must answer
 
 1. Can we reproduce Renesas's 30/38/53 ms figures? If not, why not?
-2. What is the real end-to-end latency, from hand movement to on-screen update?
+2. What is the real end-to-end latency, from camera frame capture to the result on screen?
 3. How much of the speed-up comes from tracking-first, and what does it cost in robustness?
 4. Which model operators fall back to the CPU, and how much time do they cost?
 5. How does it compare with our demo on speed, memory, and quality? Where are we ahead, and where behind?
