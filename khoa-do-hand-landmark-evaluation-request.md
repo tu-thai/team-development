@@ -89,7 +89,7 @@ Three things need checking, not just reproducing:
 - Add timing so each stage is measured separately: palm preprocess, palm inference, palm postprocess, landmark preprocess, landmark inference, landmark postprocess, filtering, and display.
 - Measure **end-to-end latency** on the chip too, from camera frame capture to the display showing the result for that frame. Timestamp each frame when capture completes (camera/VIN interrupt) and again when the display buffer showing its result is presented (GLCDC). Use a hardware timer through FSP (for example GPT) or the existing `time_counter` module. Agree the method with Duy first.
 - Measure how often the detector actually runs in normal use, and CPU load per task if FreeRTOS run-time stats are available.
-- List the operators on NPU vs CPU for both models.
+- List the operators on NPU vs CPU for both models. *Hint:* start from the RUHMI-generated code. `sub_XXXX_command_stream.c` / `sub_XXXX_invoke.c` are subgraphs that run on the Ethos-U55, `compute_sub_XXXX.c` are subgraphs that fall back to the CPU, and `model.c` shows the order they run in. Time each subgraph call separately, including the cache maintenance between them.
 
 **Phase 1 checkpoint with Tu:** code study notes, baseline vs instrumented timings, memory figures. Before the quality test, we'll agree the test scenes.
 
