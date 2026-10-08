@@ -106,7 +106,7 @@ Three things need checking, not just reproducing:
 
 Put all deliverables in the `renesas-hand-landmark-eval` repo:
 
-1. **Evaluation report** (`hand-landmark-example-evaluation-report.md`), delivered **step by step**, not all at once. When you finish each step, add that step's section to the report, commit it to the repo, tell Tu and Duy, and carry on with the next step. Don't wait for the review; fold in any feedback when it comes.
+1. **Evaluation report** (`renesas-hand-landmark-example-evaluation-report.md`), delivered **step by step**, not all at once. When you finish each step, add that step's section to the report, commit it to the repo, tell Tu and Duy, and carry on with the next step. Don't wait for the review; fold in any feedback when it comes.
 
    | After step | Add this section to the report |
    | :--- | :--- |
